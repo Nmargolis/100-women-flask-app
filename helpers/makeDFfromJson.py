@@ -2,6 +2,10 @@
 # coding: utf-8
 
 def makeDFfromJson(ibm_out):
+    import pandas as pd
+    import numpy as np
+    
+
     '''
         Reformat Json output from IBM API call via Speech Recognition with relevant parameters as a pandaDataFrame
         
