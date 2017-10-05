@@ -101,11 +101,15 @@ def upload_file():
             file_path_pre_extension, extension = file_path.split('.')
             file.save(file_path)
 
+            file_to_use = file_path
+
             if extension == 'caf':
                 converted_file = file_path_pre_extension + '.wav'
                 command = 'afconvert -f WAVE -d UI8 {file_path} {converted_file}'.format(file_path=file_path, converted_file=converted_file)
                 subprocess.call(command, shell=True)
+                file_to_use = converted_file
 
+            
 
         # r = sr.Recognizer()
         # if filename.rsplit('.', 1)[1].lower() == 'm4a':
