@@ -46,6 +46,12 @@ def get_sentences(doc):
         doc = to_textacy_doc(doc)
     return list(doc.sents)
 
+def get_name_from_first_sentence(string):
+    doc = to_spacy_doc(string)
+    first_sent = str(next(doc.sents))
+    name = get_named_entities(first_sent)[0]
+    return name
+
 def get_semantic_key_terms(doc, top_n_terms=10, filtered=True):
     '''Gets key terms from semantic network. '''
     if not isinstance(doc, textacy.doc.Doc):
@@ -75,7 +81,6 @@ def extract_verbs(doc):
     all_token_pos_pairs = itertools.chain(*doc.pos_tagged_text) #flatten list
     verbs = [token for token, pos in all_token_pos_pairs if pos.startswith("V")]
     return verbs
-print(extract_verbs(doc))
 
 
 def bag_of_words(doc, as_strings=True):
