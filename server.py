@@ -21,6 +21,14 @@ ALLOWED_EXTENSIONS = set(['wav','m4a'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
+@app.route('/upload')
+def process_speech():
+    
+@app.route('/names')
+def get_names(): 
+    
+@app.route('/results')
+def get_results():     
 
 # Set "homepage" to index.html
 @app.route('/')
