@@ -136,6 +136,6 @@ def get_semantic_categories(raw_text):
     '''Returns list of top 5 semantic categories that have a positive value'''
     category_analysis = lexicon.analyze(raw_text, normalize=True, tokenizer='default')
     top_cats = [[cat[0], cat[1]] for cat in category_analysis.items()
-                if (cat[0] in allowed_cats) and (cat[1]>0)]
+                if (cat[0] in allowed_categories) and (cat[1]>0)]
     top_cats.sort(key=lambda x: x[1], reverse=True)
     return top_cats[:5]
