@@ -8,6 +8,7 @@ from pydub import AudioSegment
 from collections import defaultdict
 
 from model import db, connect_to_db, User
+from helpers import transcribe
 
 import nlp
 import json
