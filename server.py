@@ -1,13 +1,16 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import os
 import subprocess
 # import speech_recognition as sr
 from pydub import AudioSegment
+from collections import defaultdict
 
 from model import db, connect_to_db, User
 
 import nlp
+import json
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/emplify'
@@ -19,6 +22,47 @@ ALLOWED_EXTENSIONS = set(['wav','m4a', 'caf'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
+@app.route('/upload', methods=['GET', 'POST'])
+def process_speech():
+    #get request audio file
+    #wav_file = request.body.get(‘content’)
+    wav_file = "test.wav" #for testing
+
+    watson_json= transcribe_watson(wav_file)
+
+    df = makeDFfromJson(watson_json)
+
+    speaker_dict = retrieveSpeakerInfoAsDict(df)
+    for speaker in speaker_dict:
+        speaker["name"] = get_name_from_first_sentence(sentences) or speaker
+        # if speaker["name"]==None:
+        #        speaker["name"] = speaker #default to speaker's ID number
+        speaker["top_cats"] = get_semantic_categories(sentences)
+
+
+
+    #save speaker_dict to file
+    with open('speaker_dict.json', 'w') as fp:
+        json.dumps(speaker_dict, fp)
+
+    return jsonify(speaker_dict=speaker_dict)
+
+
+@app.route('/names', methods=['GET'])
+def get_names():
+    names = defaultdict(str)
+    with open('speaker_dict.json', 'r') as fp:
+        speaker_dict = json.loads(fp)
+    for speaker in speaker_dict:
+        names[speaker] = speaker["name"] # e.g. {0:"Erin"}
+        # OR names[speaker["name"]] = speaker    # e.g. {Erin:"0"}
+    return jsonify(names=names)
+
+@app.route('/results', methods=['GET'])
+def get_results():
+    with open('speaker_dict.json', 'r') as fp:
+        results = json.loads(fp)
+    return results
 
 # Set "homepage" to index.html
 @app.route('/')

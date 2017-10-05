@@ -35,6 +35,8 @@ def get_content_words(doc):
     return list(textacy.extract.words(doc, filter_stops=True, filter_punct=True, filter_nums=False, include_pos=None, exclude_pos=None, min_freq=1))
 
 def get_named_entities(doc):
+    if not isinstance(doc, textacy.doc.Doc):
+        doc = to_textacy_doc(doc)
     nes = textacy.extract.named_entities(doc)
     return [ne for ne in nes]
 
@@ -43,6 +45,14 @@ def get_sentences(doc):
     if not isinstance(doc, textacy.doc.Doc):
         doc = to_textacy_doc(doc)
     return list(doc.sents)
+
+def get_name_from_first_sentence(string):
+    doc = to_spacy_doc(string)
+    first_sent = str(next(doc.sents))
+    name = get_named_entities(first_sent)
+    if not name:
+        return None
+    return name[0]
 
 def get_semantic_key_terms(doc, top_n_terms=10, filtered=True):
     '''Gets key terms from semantic network. '''
@@ -73,7 +83,6 @@ def extract_verbs(doc):
     all_token_pos_pairs = itertools.chain(*doc.pos_tagged_text) #flatten list
     verbs = [token for token, pos in all_token_pos_pairs if pos.startswith("V")]
     return verbs
-# print(extract_verbs(doc))
 
 
 def bag_of_words(doc, as_strings=True):
@@ -85,8 +94,48 @@ def bag_of_words(doc, as_strings=True):
 
 
 #### Empath functions
+
+allowed_categories = ['negative_emotion',
+ 'help',
+ 'office',
+ 'cheerfulness',
+ 'aggression',
+ 'anticipation',
+ 'pride',
+ 'dispute',
+ 'nervousness',
+ 'ridicule',
+ 'sexual',
+ 'irritability',
+ 'business',
+ 'exasperation',
+ 'zest',
+ 'healing',
+ 'celebration',
+ 'violence',
+ 'dominant_heirarchical',
+ 'communication',
+ 'order',
+ 'sympathy',
+ 'trust',
+ 'deception',
+ 'dominant_personality',
+ 'work',
+ 'sadness',
+ 'fun',
+ 'emotional',
+ 'joy',
+ 'shame',
+ 'anger',
+ 'disappointment',
+ 'timidity',
+ 'competing',
+ 'positive_emotion']
+
 def get_semantic_categories(raw_text):
+    '''Returns list of top 5 semantic categories that have a positive value'''
     category_analysis = lexicon.analyze(raw_text, normalize=True, tokenizer='default')
-    top_cats = [[cat[0], cat[1]] for cat in category_analysis.items()]
+    top_cats = [[cat[0], cat[1]] for cat in category_analysis.items()
+                if (cat[0] in allowed_cats) and (cat[1]>0)]
     top_cats.sort(key=lambda x: x[1], reverse=True)
-    return top_cats
+    return top_cats[:5]
