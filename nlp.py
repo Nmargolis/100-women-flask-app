@@ -73,7 +73,7 @@ def extract_verbs(doc):
     all_token_pos_pairs = itertools.chain(*doc.pos_tagged_text) #flatten list
     verbs = [token for token, pos in all_token_pos_pairs if pos.startswith("V")]
     return verbs
-print(extract_verbs(doc))
+# print(extract_verbs(doc))
 
 
 def bag_of_words(doc, as_strings=True):
