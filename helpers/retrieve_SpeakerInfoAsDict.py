@@ -114,7 +114,7 @@ def getSpeakerDur(df):
     
     df['Sdur'] = df[['from','to']].diff(axis=1).values[:,1]
     
-    SpeakerDur = [] #defaultdict(int)
+    SpeakerDur = [] 
     speakerList = df.speaker.unique().tolist()
     for i,s in enumerate (speakerList):
         SpeakerDur.extend( [df[df.speaker==speakerList[i]] .Sdur.values.sum()] )
