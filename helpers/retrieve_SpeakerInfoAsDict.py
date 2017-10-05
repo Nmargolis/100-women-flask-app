@@ -108,6 +108,7 @@ def get_SentenceInfo(df,TimeDiffIDX):
     return dftmp
 
 
+
 def getSpeakerDur(df):
 
     '''get individual speaker's total speech duration | normalize by all speakers combined speech duration'''
@@ -119,10 +120,31 @@ def getSpeakerDur(df):
     for i,s in enumerate (speakerList):
         SpeakerDur.extend( [df[df.speaker==speakerList[i]] .Sdur.values.sum()] )
         #SpeakerDur.extend( [df[df.speaker==s] .Sdur.values.sum()] )
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 56f8f505a1e65c1b8b84c851fd685521ef458dc0
     SpeakerDur_norm = SpeakerDur/sum(SpeakerDur)
 
     return SpeakerDur_norm, df
+
+
+# OLD
+# def getSpeakerDur(df):
+    
+#     '''get individual speaker's total speech duration | normalize by all speakers combined speech duration'''
+    
+#     df['Sdur'] = df[['from','to']].diff(axis=1).values[:,1]
+    
+#     SpeakerDur = [] 
+#     speakerList = df.speaker.unique().tolist()
+#     for i in speakerList:
+#         SpeakerDur.extend( [df[df.speaker==i].Sdur.values.sum()] )
+    
+#     SpeakerDur_norm = SpeakerDur/sum(SpeakerDur)
+    
+#     return SpeakerDur_norm, df 
 
 
 
@@ -139,6 +161,23 @@ def get_SpeakerDict(df, SpeakerDur_norm):
     # add other info in dict of dict: speakerDict['0']['dur'] = 10000
 
     return speakerDict
+
+
+# OLD
+# def get_SpeakerDict(df, SpeakerDur_norm):
+#     from collections import defaultdict
+
+#     speakerList = df.speaker.unique().tolist()
+
+#     speakerDict = defaultdict(lambda: defaultdict(int))
+
+#     for i in speakerList:
+#         speakerDict[str(i)] = {'sentences' : ' \n '.join(df[df.speaker==i].sentences.values.tolist()),
+#                               'duration' : SpeakerDur_norm[i]}
+
+#     # add other info in dict of dict: speakerDict['0']['dur'] = 10000
+
+#     return speakerDict
 
 
 
