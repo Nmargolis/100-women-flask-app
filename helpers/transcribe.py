@@ -22,17 +22,19 @@ def transcribe_json(audio_file):
     return r.recognize_ibm_custom(audio, ibm_username, ibm_password, show_all=True)
 
 
-stt = SpeechToTextV1(username=ibm_username, password=ibm_password)
-audio_file = open("output.wav", "rb")
+def transcribe_watson(wav_file):
+    '''Uses IBM Watson speech to text API for input WAV file'''
+    stt = SpeechToTextV1(username=ibm_username, password=ibm_password)
+    audio_file = open(wav_file, "rb")
 
-#keywords = ['Erin']
-with open('transcript_result.json', 'w') as fp:
-    result = stt.recognize(audio_file, 
-                           #keywords= str(keywords),
-                           #keywords_threshold= 0.01,
-                           speaker_labels= True,
-                           content_type="audio/wav",
-                           timestamps=True,
-                           max_alternatives=1)
-    json.dump(result, fp, indent=2)
-    print(result)
+    #keywords = ['Erin']
+    with open('transcript_result.json', 'w') as fp:
+        result = stt.recognize(audio_file, 
+                               #keywords= str(keywords),
+                               #keywords_threshold= 0.01,
+                               speaker_labels= True,
+                               content_type="audio/wav",
+                               timestamps=True,
+                               max_alternatives=1)
+        json.dump(result, fp, indent=2)
+        return result
