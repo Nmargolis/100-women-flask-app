@@ -2,14 +2,24 @@
 # coding: utf-8
 
 def makeDFfromJson(ibm_out):
+    
+    """
+    Reformat Json output from IBM API call via Speech Recognition with relevant parameters as a pandaDataFrame
+
+    ---------------------------------------------------------------------------
+    ## Example use: 
+
+    # from makeDFfromJson import makeDFfromJson
+    # DF0 = makeDFfromJson(ibm_out)
+    ---------------------------------------------------------------------------
+
+    h-rm.tan 2-3oct2017
+
+    """
+ 
     import pandas as pd
     import numpy as np
     
-
-    '''
-        Reformat Json output from IBM API call via Speech Recognition with relevant parameters as a pandaDataFrame
-        
-    '''
 
     DFtmp_spkInfo = pd.DataFrame.from_dict(ibm_out['speaker_labels'])
     DFtmp_spkInfo = DFtmp_spkInfo.rename(columns = {'confidence':'SpkConf'})
