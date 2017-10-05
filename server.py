@@ -10,6 +10,7 @@ from collections import defaultdict
 from model import db, connect_to_db, User
 
 import nlp
+import json
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/emplify'
@@ -25,24 +26,27 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 @app.route('/upload')
 def process_speech():
     #get request audio file
-    #request.body.get
-    #wav_file = request.args.get(‘content’, 0, type=str) 
-    wav_file = "test.wav"
+    #wav_file = request.body.get(‘content’)
+    wav_file = "test.wav" #for testing
+
     watson_json= transcibe_watson(wav_file)
+
     df = makeDFfromJson(watson_json)
+
     speaker_dict = retreiveSpeakerInfoAsDict(df)
     for speaker in speaker_dict:
-        
         speaker["name"]=get_name_from_first_sentence(sentences)
         if speaker["name"]==None:
                speaker["name"]==speaker
-                
         speaker["top_cats"] = get_semantic_categories(sentences)
-    
+
     #save speaker_dict to file
+    with open('speaker_dict.json', 'w') as fp:
+        json.dump(speaker_dict, fp)
+
     return jsonify(speaker_dict=speaker_dict)
 
-    
+
 @app.route('/names')
 def get_names(string):
     count = 0
@@ -54,6 +58,9 @@ def get_names(string):
 
 @app.route('/results')
 def get_results():
+    with open('speaker_dict.json', 'r') as fp:
+        results = json.loads(fp)
+    return results 
 
 # Set "homepage" to index.html
 @app.route('/')
