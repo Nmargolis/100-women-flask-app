@@ -4,22 +4,22 @@
 """
 retrieve_SpeakerInfoAsDict.py
 
-## Example uses: 
+## Example uses:
 
     ## retrieve_SpeakerInfoAsDict(DF0)
     where DF0 = makeDFfromJson(ibm_out)
     returns speakerDict (seeBelow)
-    
+
 
 ---------------------------------------------------------------------------
     ** if using functions separately:
-    
+
     ## from makeDFfromJson import makeDFfromJson
     ## DF0 = makeDFfromJson(ibm_out)
 
 
-    DF1 = addTimeDiff_toDF(DF0) 
-    # DF1 
+    DF1 = addTimeDiff_toDF(DF0)
+    # DF1
 
     TimeDiffIDX = findTimeDiffIDX(DF1)
     # TimeDiffIDX
@@ -36,7 +36,7 @@ retrieve_SpeakerInfoAsDict.py
     speakerDict = make_SpeakerDict(DF2)
     # speakerDict
     # speakerDict['1']
-    
+
 ---------------------------------------------------------------------------
 
 h-rm.tan 4oct2017
@@ -45,7 +45,8 @@ h-rm.tan 4oct2017
 
 import pandas as pd
 import numpy as np
-import json 
+import json
+from collections import defaultdict
 
 # from makeDFfromJson import makeDFfromJson
 # DF0 = makeDFfromJson(ibm_out)
@@ -64,15 +65,15 @@ def addTimeDiff_toDF(df): ## from df = makeDFfromJson(ibm_out)
 
 def findTimeDiffIDX(df):
     TimeDiffIDX = df[df.timeDiff!=0].index.tolist()
-    
+
     if (len(df)-1 in TimeDiffIDX) == True:
         TimeDiffIDX.extend([len(df)])
-        
+
     return TimeDiffIDX
 
 
 def get_SentenceNtofrom(df,TimeDiffIDX):
-    
+
     AllSents=[]
     AllS=[]
     AllE=[]
@@ -103,36 +104,36 @@ def get_SentenceInfo(df,TimeDiffIDX):
                       ['resultIDX','SentConf', 'SpkConf', 'final', 'speaker',  'timeDiff'] ].drop_duplicates(subset='speaker')
         #print(tmp)
         dftmp = pd.concat([dftmp,pd.DataFrame(tmp)])
-    
+
     return dftmp
 
 
 def getSpeakerDur(df):
-    
+
     '''get individual speaker's total speech duration | normalize by all speakers combined speech duration'''
-    
+
     df['Sdur'] = df[['from','to']].diff(axis=1).values[:,1]
-    
-    SpeakerDur = [] 
+
+    SpeakerDur = [] #defaultdict(int)
     speakerList = df.speaker.unique().tolist()
-    for i in speakerList:
-        SpeakerDur.extend( [df[df.speaker==i].Sdur.values.sum()] )
-    
+    for i,s in enumerate (speakerList):
+        SpeakerDur.extend( [df[df.speaker==speakerList[i]] .Sdur.values.sum()] )
+        #SpeakerDur.extend( [df[df.speaker==s] .Sdur.values.sum()] )
+
     SpeakerDur_norm = SpeakerDur/sum(SpeakerDur)
-    
-    return SpeakerDur_norm, df 
+
+    return SpeakerDur_norm, df
 
 
 
 def get_SpeakerDict(df, SpeakerDur_norm):
-    from collections import defaultdict
 
     speakerList = df.speaker.unique().tolist()
 
     speakerDict = defaultdict(lambda: defaultdict(int))
 
-    for i in speakerList:
-        speakerDict[str(i)] = {'sentences' : ' \n '.join(df[df.speaker==i].sentences.values.tolist()),
+    for i,s in enumerate(speakerList):
+        speakerDict[str(speakerList[i])] = {'sentences' : ' \n '.join(df[df.speaker==speakerList[i]].sentences.values.tolist()),
                               'duration' : SpeakerDur_norm[i]}
 
     # add other info in dict of dict: speakerDict['0']['dur'] = 10000
@@ -142,7 +143,6 @@ def get_SpeakerDict(df, SpeakerDur_norm):
 
 
 def make_SpeakerDict(df):
-    from collections import defaultdict
 
     speakerList = df.speaker.unique().tolist()
 
@@ -157,11 +157,11 @@ def make_SpeakerDict(df):
 
 
 
-### Uses All functions above 
+### Uses All functions above
 def retrieve_SpeakerInfoAsDict(DF0): ## from DF0 = makeDFfromJson(ibm_out)
-    
 
-    DF1 = addTimeDiff_toDF(DF0) 
+
+    DF1 = addTimeDiff_toDF(DF0)
 
     TimeDiffIDX = findTimeDiffIDX(DF1)
 
@@ -170,11 +170,11 @@ def retrieve_SpeakerInfoAsDict(DF0): ## from DF0 = makeDFfromJson(ibm_out)
     SentenceInfo = get_SentenceInfo(DF1,TimeDiffIDX)
 
     DF2 = pd.concat([SentenceInfo.reset_index(drop=True),tofromSent],axis=1)
-    
+
     SpeakerDur_norm, DF2 = getSpeakerDur(DF2)
-    
+
     ## speakerDict = make_SpeakerDict(DF2)
-    
+
     speakerDict = get_SpeakerDict(DF2,SpeakerDur_norm)
-    
+
     return speakerDict
