@@ -35,6 +35,8 @@ def get_content_words(doc):
     return list(textacy.extract.words(doc, filter_stops=True, filter_punct=True, filter_nums=False, include_pos=None, exclude_pos=None, min_freq=1))
 
 def get_named_entities(doc):
+    if not isinstance(doc, textacy.doc.Doc):
+        doc = to_textacy_doc(doc)
     nes = textacy.extract.named_entities(doc)
     return [ne for ne in nes]
 
