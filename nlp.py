@@ -49,8 +49,10 @@ def get_sentences(doc):
 def get_name_from_first_sentence(string):
     doc = to_spacy_doc(string)
     first_sent = str(next(doc.sents))
-    name = get_named_entities(first_sent)[0]
-    return name
+    name = get_named_entities(first_sent)
+    if not name:
+        return None
+    return name[0]
 
 def get_semantic_key_terms(doc, top_n_terms=10, filtered=True):
     '''Gets key terms from semantic network. '''
