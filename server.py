@@ -4,10 +4,11 @@ from flask_heroku import Heroku
 from werkzeug.utils import secure_filename
 import os
 import speech_recognition as sr
+from pydub import AudioSegment
 
 from model import db, connect_to_db, User
 
-import nlp 
+import nlp
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/emplify'
@@ -15,7 +16,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 heroku = Heroku(app)
 
 UPLOAD_FOLDER = '/tmp/'
-ALLOWED_EXTENSIONS = set(['wav'])
+ALLOWED_EXTENSIONS = set(['wav','m4a'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
@@ -66,8 +67,16 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         r = sr.Recognizer()
-        with sr.WavFile(app.config['UPLOAD_FOLDER']+filename) as source:
-            audio = r.record(source)
+        if filename.rsplit('.', 1)[1].lower() == 'm4a':
+            m4_audio = AudioSegment.from_file(app.config['UPLOAD_FOLDER']+filename, format="m4a")
+            m4_audio.export("sound_file.wav", format="wav")
+            filename = "sound_file.wav"
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            with sr.WavFile(filename) as source:
+                    audio = r.record(source)
+        else:
+            with sr.WavFile(app.config['UPLOAD_FOLDER']+filename) as source:
+                    audio = r.record(source)
 
         try:
             flash("Transcription: " + r.recognize_google(audio))
