@@ -7,6 +7,7 @@ import speech_recognition as sr
 
 from model import db, connect_to_db, User
 
+import nlp 
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/emplify'
@@ -23,6 +24,8 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 # Set "homepage" to index.html
 @app.route('/')
 def index():
+    print (nlp.to_spacy_doc())
+    print (nlp.to_textacy_doc())
     return render_template('index.html')
 
 # Save e-mail to database and send to success page
