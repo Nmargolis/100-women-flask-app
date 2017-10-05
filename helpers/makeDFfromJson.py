@@ -1,6 +1,4 @@
 
-# coding: utf-8
-
 def makeDFfromJson(ibm_out):
     
     """
@@ -41,5 +39,6 @@ def makeDFfromJson(ibm_out):
     DFtmp_wdSconf = pd.DataFrame([r_list, Wd_list,Sconf_list], index=['resultIDX','Wd_list','SentConf']).T
 
     DF = pd.concat([DFtmp_wdSconf, DFtmp_spkInfo], axis=1)
+    DF.dropna(inplace=True) # doesn't get returned | also tried saving as another DF no joy
     
     return DF
