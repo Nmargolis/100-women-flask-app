@@ -25,30 +25,23 @@ ALLOWED_EXTENSIONS = set(['wav','m4a', 'caf'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
-@app.route('/upload', methods=['GET', 'POST'])
-def process_speech():
-    #get request audio file
-    #wav_file = request.body.get(‘content’)
-    wav_file = "test.wav" #for testing
+# @app.route('/upload', methods=['GET', 'POST'])
+# def process_speech():
+#     wav_file = file_to_use
+#     watson_json= transcribe_watson(wav_file)
+#     df = makeDFfromJson(watson_json)
+#     speaker_dict = retrieveSpeakerInfoAsDict(df)
+#     for speaker in speaker_dict:
+#         speaker["name"] = get_name_from_first_sentence(sentences) or speaker
+#         # if speaker["name"]==None:
+#         #        speaker["name"] = speaker #default to speaker's ID number
+#         speaker["top_cats"] = get_semantic_categories(sentences)
+#     #save speaker_dict to file
+#     with open('speaker_dict.json', 'w') as fp:
+#         json.dumps(speaker_dict, fp)
+#
+#     return jsonify(speaker_dict=speaker_dict)
 
-    watson_json= transcribe_watson(wav_file)
-
-    df = makeDFfromJson(watson_json)
-
-    speaker_dict = retrieveSpeakerInfoAsDict(df)
-    for speaker in speaker_dict:
-        speaker["name"] = get_name_from_first_sentence(sentences) or speaker
-        # if speaker["name"]==None:
-        #        speaker["name"] = speaker #default to speaker's ID number
-        speaker["top_cats"] = get_semantic_categories(sentences)
-
-
-
-    #save speaker_dict to file
-    with open('speaker_dict.json', 'w') as fp:
-        json.dumps(speaker_dict, fp)
-
-    return jsonify(speaker_dict=speaker_dict)
 
 
 @app.route('/names', methods=['GET'])
@@ -76,7 +69,7 @@ def index():
 
 
 def allowed_file(filename):
-    print 'in allowed file'
+    print('in allowed file')
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -88,7 +81,7 @@ def upload_file():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-      
+
         # if user does not select file, browser also
         # submit a empty part without filename
         if file.filename == '':
@@ -104,19 +97,36 @@ def upload_file():
 
             file_to_use = file_path
 
-            if extension == 'caf':
+            if extension == 'm4a':
+                m4_audio = AudioSegment.from_file(file_path)
+                m4_audio.export(file_path_pre_extension+".wav", format="wav")
+                file_to_use = file_path_pre_extension+".wav"
+
+
+            if extension == 'caf' or extension=='m4a':
                 converted_file = file_path_pre_extension + '.wav'
                 command = 'afconvert -f WAVE -d UI8 {file_path} {converted_file}'.format(file_path=file_path, converted_file=converted_file)
                 subprocess.call(command, shell=True)
                 file_to_use = converted_file
 
-            
+            wav_file = file_to_use
+            watson_json= transcribe_watson(wav_file)
+            df = makeDFfromJson(watson_json)
+            speaker_dict = retrieveSpeakerInfoAsDict(df)
+            for speaker in speaker_dict:
+                speaker["name"] = get_name_from_first_sentence(sentences) or speaker
+                # if speaker["name"]==None:
+                #        speaker["name"] = speaker #default to speaker's ID number
+                speaker["top_cats"] = get_semantic_categories(sentences)
+            #save speaker_dict to file
+            with open('speaker_dict.json', 'w') as fp:
+                json.dumps(speaker_dict, fp)
 
         # r = sr.Recognizer()
         # if filename.rsplit('.', 1)[1].lower() == 'm4a':
         #     m4_audio = AudioSegment.from_file(app.config['UPLOAD_FOLDER']+filename, format="m4a")
         #     m4_audio.export("sound_file.wav", format="wav")
-        #     filename = "sound_file.wav"
+            #filename = "sound_file.wav"
         #     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             # with sr.WavFile(filename) as source:
                     # audio = r.record(source)
