@@ -48,19 +48,20 @@ def process_speech():
 
 
 @app.route('/names')
-def get_names(string):
-    count = 0
-    speaker_dict = defaultdict(str)
-    while get_name_from_first_sentence(string):
-        speaker_dict[count] = get_name_from_first_sentence(string)
-        count += 1
-    return speaker_dict
+def get_names():
+    names = defaultdict(str)
+    with open('speaker_dict.json', 'r') as fp:
+        speaker_dict = json.loads(fp)
+    for speaker in speaker_dict:
+        names[speaker] = speaker["name"] # e.g. {0:"Erin"}
+        # OR names[speaker["name"]] = speaker    # e.g. {Erin:"0"}
+    return jsonify(names=names)
 
 @app.route('/results')
 def get_results():
     with open('speaker_dict.json', 'r') as fp:
         results = json.loads(fp)
-    return results 
+    return results
 
 # Set "homepage" to index.html
 @app.route('/')
