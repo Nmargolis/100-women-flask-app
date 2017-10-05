@@ -69,24 +69,24 @@ def index():
     return render_template('index.html')
 
 # Save e-mail to database and send to success page
-@app.route('/prereg', methods=['POST'])
-def prereg():
-    email = None
-    if request.method == 'POST':
-        email = request.form['email']
-        # Check that email does not already exist (not a great query, but works)
-        if not db.session.query(User).filter(User.email == email).count():
-            reg = User(email)
-            db.session.add(reg)
-            db.session.commit()
-            return render_template('success.html')
-    return render_template('index.html')
+# @app.route('/prereg', methods=['POST'])
+# def prereg():
+#     email = None
+#     if request.method == 'POST':
+#         email = request.form['email']
+#         # Check that email does not already exist (not a great query, but works)
+#         if not db.session.query(User).filter(User.email == email).count():
+#             reg = User(email)
+#             db.session.add(reg)
+#             db.session.commit()
+#             return render_template('success.html')
+#     return render_template('index.html')
 
 
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# def allowed_file(filename):
+#     return '.' in filename and \
+#            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 ### Note: requires SpeechRecognition package
