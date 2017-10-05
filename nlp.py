@@ -94,8 +94,47 @@ def bag_of_words(doc, as_strings=True):
 
 
 #### Empath functions
+
+allowed_categories = ['negative_emotion',
+ 'help',
+ 'office',
+ 'cheerfulness',
+ 'aggression',
+ 'anticipation',
+ 'pride',
+ 'dispute',
+ 'nervousness',
+ 'ridicule',
+ 'sexual',
+ 'irritability',
+ 'business',
+ 'exasperation',
+ 'zest',
+ 'healing',
+ 'celebration',
+ 'violence',
+ 'dominant_heirarchical',
+ 'communication',
+ 'order',
+ 'sympathy',
+ 'trust',
+ 'deception',
+ 'dominant_personality',
+ 'work',
+ 'sadness',
+ 'fun',
+ 'emotional',
+ 'joy',
+ 'shame',
+ 'anger',
+ 'disappointment',
+ 'timidity',
+ 'competing',
+ 'positive_emotion']
+
 def get_semantic_categories(raw_text):
     category_analysis = lexicon.analyze(raw_text, normalize=True, tokenizer='default')
-    top_cats = [[cat[0], cat[1]] for cat in category_analysis.items()]
+    top_cats = [[cat[0], cat[1]] for cat in category_analysis.items()
+                if (cat[0] in allowed_cats) and (cat[1]>0)]
     top_cats.sort(key=lambda x: x[1], reverse=True)
-    return top_cats
+    return top_cats[:5]
