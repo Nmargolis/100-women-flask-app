@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 import speech_recognition as sr
 from pydub import AudioSegment
+from collections import defaultdict
 
 from model import db, connect_to_db, User
 
@@ -23,12 +24,18 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
 @app.route('/upload')
 def process_speech():
-    
+
 @app.route('/names')
-def get_names(): 
-    
+def get_names(string):
+    count = 0
+    speaker_dict = defaultdict(str)
+    while get_name_from_first_sentence(string):
+        speaker_dict[count] = get_name_from_first_sentence(string)
+        count += 1
+    return speaker_dict
+
 @app.route('/results')
-def get_results():     
+def get_results():
 
 # Set "homepage" to index.html
 @app.route('/')
