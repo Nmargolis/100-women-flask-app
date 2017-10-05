@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
 from werkzeug.utils import secure_filename
@@ -24,7 +24,25 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
 @app.route('/upload')
 def process_speech():
+    #get request audio file
+    #request.body.get
+    #wav_file = request.args.get(‘content’, 0, type=str) 
+    wav_file = "test.wav"
+    watson_json= transcibe_watson(wav_file)
+    df = makeDFfromJson(watson_json)
+    speaker_dict = retreiveSpeakerInfoAsDict(df)
+    for speaker in speaker_dict:
+        
+        speaker["name"]=get_name_from_first_sentence(sentences)
+        if speaker["name"]==None:
+               speaker["name"]==speaker
+                
+        speaker["top_cats"] = get_semantic_categories(sentences)
+    
+    #save speaker_dict to file
+    return jsonify(speaker_dict=speaker_dict)
 
+    
 @app.route('/names')
 def get_names(string):
     count = 0
