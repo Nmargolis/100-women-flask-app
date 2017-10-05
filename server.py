@@ -10,10 +10,13 @@ from pydub import AudioSegment
 from collections import defaultdict
 
 from model import db, connect_to_db, User
-from helpers import transcribe
+from helpers.transcribe import transcribe_watson
+from helpers.makeDFfromJson import makeDFfromJson
+from helpers.retrieve_SpeakerInfoAsDict import retrieve_SpeakerInfoAsDict
 
 import nlp
 import json
+import pickle
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/emplify'
@@ -27,38 +30,41 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
 # @app.route('/upload', methods=['GET', 'POST'])
 # def process_speech():
-#     wav_file = file_to_use
+#     wav_file = "pos-neg-1min.wav"
 #     watson_json= transcribe_watson(wav_file)
 #     df = makeDFfromJson(watson_json)
-#     speaker_dict = retrieveSpeakerInfoAsDict(df)
-#     for speaker in speaker_dict:
-#         speaker["name"] = get_name_from_first_sentence(sentences) or speaker
-#         # if speaker["name"]==None:
-#         #        speaker["name"] = speaker #default to speaker's ID number
-#         speaker["top_cats"] = get_semantic_categories(sentences)
-#     #save speaker_dict to file
-#     with open('speaker_dict.json', 'w') as fp:
-#         json.dumps(speaker_dict, fp)
+#     speaker_dict = retrieve_SpeakerInfoAsDict(df)
+#     for speaker_id, speaker in speaker_dict.items():
+#         sentences = speaker['sentences']
+#         speaker["name"] = nlp.get_name_from_first_sentence(sentences) #or speaker_id
+#         if not speaker["name"]:
+#             speaker["name"] = speaker #default to speaker's ID number
+#         speaker["top_cats"] = nlp.get_semantic_categories(sentences)
 #
-#     return jsonify(speaker_dict=speaker_dict)
+#     #save speaker_dict to file
+#     speaker_dict = dict(speaker_dict)
+#     print(speaker_dict)
+#     with open('speaker_dict.json', 'w') as fp:
+#         json.dump(str(speaker_dict), fp)
+#
+#     return #jsonify(speaker_dict=speaker_dict)
 
 
 
 @app.route('/names', methods=['GET'])
 def get_names():
     names = defaultdict(str)
-    with open('speaker_dict.json', 'r') as fp:
-        speaker_dict = json.loads(fp)
+    speaker_dict = pickle.load( open( "speaker_dict.p", "rb" ) )
     for speaker in speaker_dict:
         names[speaker] = speaker["name"] # e.g. {0:"Erin"}
         # OR names[speaker["name"]] = speaker    # e.g. {Erin:"0"}
     return jsonify(names=names)
 
+
 @app.route('/results', methods=['GET'])
 def get_results():
-    with open('speaker_dict.json', 'r') as fp:
-        results = json.loads(fp)
-    return results
+    results = pickle.load( open( "speaker_dict.p", "rb" ) )
+    return jsonify(results=results)
 
 # Set "homepage" to index.html
 @app.route('/')
@@ -102,25 +108,31 @@ def upload_file():
                 m4_audio.export(file_path_pre_extension+".wav", format="wav")
                 file_to_use = file_path_pre_extension+".wav"
 
-
             if extension == 'caf' or extension=='m4a':
                 converted_file = file_path_pre_extension + '.wav'
                 command = 'afconvert -f WAVE -d UI8 {file_path} {converted_file}'.format(file_path=file_path, converted_file=converted_file)
                 subprocess.call(command, shell=True)
                 file_to_use = converted_file
 
-            wav_file = file_to_use
-            watson_json= transcribe_watson(wav_file)
+            watson_json= transcribe_watson(file_to_use)
             df = makeDFfromJson(watson_json)
-            speaker_dict = retrieveSpeakerInfoAsDict(df)
-            for speaker in speaker_dict:
-                speaker["name"] = get_name_from_first_sentence(sentences) or speaker
-                # if speaker["name"]==None:
-                #        speaker["name"] = speaker #default to speaker's ID number
-                speaker["top_cats"] = get_semantic_categories(sentences)
+            speaker_dict = retrieve_SpeakerInfoAsDict(df)
+            for speaker_id, speaker in speaker_dict.items():
+                sentences = speaker['sentences']
+                speaker["name"] = nlp.get_name_from_first_sentence(sentences) #or speaker_id
+                if not speaker["name"]:
+                    speaker["name"] = speaker #default to speaker's ID number
+                speaker["top_cats"] = nlp.get_semantic_categories(sentences)
+
             #save speaker_dict to file
-            with open('speaker_dict.json', 'w') as fp:
-                json.dumps(speaker_dict, fp)
+            speaker_dict = dict(speaker_dict)
+            print(speaker_dict)
+            #with open('speaker_dict.json', 'w') as f:
+            #    f.write(json.dumps(speaker_dict))
+
+            pickle.dump(speaker_dict, open( "speaker_dict.p", "wb" ) )
+
+
 
         # r = sr.Recognizer()
         # if filename.rsplit('.', 1)[1].lower() == 'm4a':
