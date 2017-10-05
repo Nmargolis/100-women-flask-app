@@ -33,16 +33,18 @@ def process_speech():
 
     df = makeDFfromJson(watson_json)
 
-    speaker_dict = retreiveSpeakerInfoAsDict(df)
+    speaker_dict = retrieveSpeakerInfoAsDict(df)
     for speaker in speaker_dict:
-        speaker["name"] = get_name_from_first_sentence(sentences)
-        if speaker["name"]==None:
-               speaker["name"] = speaker #default to speaker's ID number
+        speaker["name"] = get_name_from_first_sentence(sentences) or speaker
+        # if speaker["name"]==None:
+        #        speaker["name"] = speaker #default to speaker's ID number
         speaker["top_cats"] = get_semantic_categories(sentences)
+
+
 
     #save speaker_dict to file
     with open('speaker_dict.json', 'w') as fp:
-        json.dump(speaker_dict, fp)
+        json.dumps(speaker_dict, fp)
 
     return jsonify(speaker_dict=speaker_dict)
 
