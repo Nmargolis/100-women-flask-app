@@ -58,13 +58,13 @@ def get_names():
     for speaker in speaker_dict:
         names[speaker] = speaker["name"] # e.g. {0:"Erin"}
         # OR names[speaker["name"]] = speaker    # e.g. {Erin:"0"}
-    return jsonify(names=names)
+    return jsonify(str(names))
 
 
 @app.route('/results', methods=['GET'])
 def get_results():
     results = pickle.load( open( "speaker_dict.p", "rb" ) )
-    return jsonify(results=results)
+    return jsonify(str(results))
 
 # Set "homepage" to index.html
 @app.route('/')
