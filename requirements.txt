@@ -62,7 +62,7 @@ tqdm==4.19.1.post1
 ujson==1.35
 Unidecode==0.4.21
 uritemplate==3.0.0
-urllib3==1.22
+urllib3==1.26.5
 wcwidth==0.1.7
 webencodings==0.5.1
 Werkzeug==0.12.2
