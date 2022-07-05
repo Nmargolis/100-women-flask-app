@@ -59,7 +59,7 @@ textacy==0.4.1
 thinc==6.5.2
 toolz==0.8.2
 tqdm==4.19.1.post1
-ujson==1.35
+ujson==5.4.0
 Unidecode==0.4.21
 uritemplate==3.0.0
 urllib3==1.22
